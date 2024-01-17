@@ -1,17 +1,18 @@
 const { Product } = require("../models/productModel");
 
-const getProducts=async(req,res)=>{
-    try {
-        const products=await Product.find()
-        res.status(200).json(products)
-    } catch (error) {
-        console.log("Error in getProducts")
-        console.log(error.message)
-        res.status(400).json({error:error.message})
-    }
-}
+// const getProducts=async(req,res)=>{
+//     try {
+//         const products=await Product.find()
+//         res.status(200).json(products)
+//     } catch (error) {
+//         console.log("Error in getProducts")
+//         console.log(error.message)
+//         res.status(400).json({error:error.message})
+//     }
+// }
 
 const getSingleProduct=async(req,res)=>{
+    console.log(req.params)
     try {
         const {id}=req.params;
         const product=await Product.findOne({_id:id})
@@ -82,6 +83,49 @@ const deleteProduct=async(req,res)=>{
         console.log(error.message)
         res.status(400).json({error:error.message})
     }
+}
+
+const getProducts=async(req,res)=>{
+    console.log(req.query)
+    try {
+        const { category, minPrice, maxPrice, gender, search, page = 1, pageSize = 10 } = req.query;
+
+        // Calculating the number of documents to skip and limit
+        const skip = (Number(page) - 1) * Number(pageSize);
+        const limit = Number(pageSize);
+
+        if(!category && !minPrice && !maxPrice && !gender && !search){
+            const data = await Product.find().skip(skip).limit(limit)
+            return res.status(200).json(data)
+        }
+    
+        // Building filter object based on provided parameters
+        const filter = {};
+        if (category) filter.category = category;
+        if (gender) filter.gender = gender;
+        if (search) {
+          filter.$name = { $search: search };
+        }
+    
+        // Handling the price range
+        if (minPrice && maxPrice) {
+          filter.price = { $gte: Number(minPrice), $lte: Number(maxPrice) };
+        } else if (minPrice) {
+          filter.price = { $gte: Number(minPrice) };
+        } else if (maxPrice) {
+          filter.price = { $lte: Number(maxPrice) };
+        }
+    
+        // Querying the database with the constructed filter, skip, and limit
+        const filteredProducts = await Product.find(filter)
+          .skip(skip)
+          .limit(limit);
+        res.status(200).json(filteredProducts);
+      } catch (error) {
+        console.log("Error in getFilteredProducts")
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
 }
 
 module.exports={
