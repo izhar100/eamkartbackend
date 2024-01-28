@@ -5,7 +5,7 @@ const productRouter=express.Router()
 
 productRouter.get("/",getProducts)
 productRouter.get("/:id",getSingleProduct)
-productRouter.get("/seller",auth,getSellerProduct)
+productRouter.get("/seller/products",auth,getSellerProduct)
 productRouter.post("/add",auth,addProduct)
 productRouter.put("/update/:id",auth,updateProduct)
 productRouter.delete("/delete/:id",auth,deleteProduct)

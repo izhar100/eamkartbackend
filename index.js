@@ -2,12 +2,21 @@ const express=require("express")
 const { connection } = require("./db")
 const app=express()
 const cors=require("cors")
+const cloudinary=require("cloudinary")
 const { userRouter } = require("./routes/userRoute")
 const { productRouter } = require("./routes/productRoute")
-app.use(express.json())
+app.use(express.json({limit: '20mb'}))
+app.use(express.urlencoded({limit: '20mb',extended:true}))
 app.use(cors())
 require("dotenv").config()
 const port=process.env.port||8000
+
+//cloudinay configration
+cloudinary.config({
+    cloud_name:process.env.CLOUDINAY_NAME,
+    api_key:process.env.CLOUDINAY_API_KEY,
+    api_secret:process.env.CLOUDINAY_API_SECRET
+ })
 
 app.use("/user",userRouter)
 app.use("/product",productRouter)

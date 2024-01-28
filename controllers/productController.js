@@ -1,4 +1,5 @@
 const { Product } = require("../models/productModel");
+const cloudinary=require("cloudinary").v2
 
 // const getProducts=async(req,res)=>{
 //     try {
@@ -38,7 +39,16 @@ const getSellerProduct=async(req,res)=>{
 
 const addProduct=async(req,res)=>{
     try {
-        const newProduct=new Product(req.body)
+        let {image1,image2}=req.body;
+        if (image1) {
+            const uploadedResponse = await cloudinary.uploader.upload(image1)
+            image1 = uploadedResponse.secure_url
+        }
+        if(image2){
+            const uploadedResponse = await cloudinary.uploader.upload(image2)
+            image2 = uploadedResponse.secure_url
+        }
+        const newProduct=new Product({...req.body,image1,image2})
         await newProduct.save()
         res.status(201).json({message:"New Product Added",product:newProduct})
     } catch (error) {

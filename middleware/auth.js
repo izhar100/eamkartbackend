@@ -8,7 +8,7 @@ const auth=async(req,res,next)=>{
             return res.status(400).json({error:"Please login first"})
         }
         const decoded=jwt.verify(token,process.env.secretKey)
-        req.body.sellerId=decoded.userId;
+        req.body['sellerId']=decoded.userId;
         next()
     } catch (error) {
         console.log("Error in auth middleware")
