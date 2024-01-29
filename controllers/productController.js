@@ -80,9 +80,16 @@ const deleteProduct=async(req,res)=>{
     try {
         const {sellerId}=req.body;
         const {id}=req.params;
-        console.log(sellerId,id)
         const product=await Product.findOne({_id:id})
         if(product.sellerId==sellerId){
+            if(product.image1){
+                const imageId = product.image1.split("/").pop().split(".")[0];
+                await cloudinary.uploader.destroy(imageId)
+            }
+            if(product.image2){
+                const imageId = product.image2.split("/").pop().split(".")[0];
+                await cloudinary.uploader.destroy(imageId)
+            }
             await Product.findByIdAndDelete({_id:id})
             res.status(201).json({message:"Product deleted!"})
         }else{
